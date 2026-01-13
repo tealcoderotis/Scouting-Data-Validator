@@ -244,7 +244,10 @@ if tbaKey != None:
             tbaMatchData = tbaRequest(f"/event/{eventKey}/matches")
         except:
             print(termcolor.colored("Error reterving match data", "red"))
+            input()
         if tbaMatchData != None:
             validateData(tbaMatchData, data)
+            input("Press enter to finish")
 else:
     print(termcolor.colored("Please provide a TBA API key in config.json", "red"))
+    input()

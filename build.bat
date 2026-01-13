@@ -1,0 +1,1 @@
+python -m PyInstaller app.py -n "Scouting Data Validator" -c -i "icon.ico" --add-data "config.json:."
