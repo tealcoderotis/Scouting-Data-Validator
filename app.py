@@ -30,45 +30,55 @@ COMPARISONS = [
     },
     {
         "data_values": ["auto_coral_l1"],
-        "tba_values": [["autoReef", "trough"]]
+        "tba_values": [["autoReef", "trough"]],
+        "tolerance": 5
     },
     {
         "data_values": ["auto_coral_l2"],
-        "tba_values": [["autoReef", "tba_botRowCount"]]
+        "tba_values": [["autoReef", "tba_botRowCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["auto_coral_l3"],
-        "tba_values": [["autoReef", "tba_midRowCount"]]
+        "tba_values": [["autoReef", "tba_midRowCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["auto_coral_l4"],
-        "tba_values": [["autoReef", "tba_topRowCount"]]
+        "tba_values": [["autoReef", "tba_topRowCount"]],
+        "tolerance": 5
     },
      {
         "data_values": ["tele_coral_l1"],
-        "tba_values": [["teleopReef", "trough"]]
+        "tba_values": [["teleopReef", "trough"]],
+        "tolerance": 5
     },
     {
         "data_values": ["tele_coral_l2"],
-        "tba_values": [["teleopReef", "tba_botRowCount"]]
+        "tba_values": [["teleopReef", "tba_botRowCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["tele_coral_l3"],
-        "tba_values": [["teleopReef", "tba_midRowCount"]]
+        "tba_values": [["teleopReef", "tba_midRowCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["tele_coral_l4"],
-        "tba_values": [["teleopReef", "tba_topRowCount"]]
+        "tba_values": [["teleopReef", "tba_topRowCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["auto_algae_processor", "tele_algae_processor"],
         "data_mode": "sum",
-        "tba_values": [["wallAlgaeCount"]]
+        "tba_values": [["wallAlgaeCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["auto_algae_net", "tele_algae_net"],
         "data_mode": "sum",
-        "tba_values": [["netAlgaeCount"]]
+        "tba_values": [["netAlgaeCount"]],
+        "tolerance": 5
     },
     {
         "data_values": ["climb"],
@@ -183,10 +193,14 @@ def validateData(tbaJson, dataFrame):
             blueTeamData = matchData[matchData["team_number"].isin(blueTbaTeams)]
             for comparison in COMPARISONS:
                 if ("data_mode" not in comparison or comparison["data_mode"] != "validate_by_robot"):
-                    dataValue = prepareScoutedData(redTeamData, comparison)
-                    tbaValue = prepareTBAData(breakDownRed, comparison)
-                    if (float(dataValue) != float(tbaValue)):
-                        errors.append((1, f"Red's {", ".join(comparison["data_values"])} total does not match the value provided by TBA"))
+                    dataValue = float(prepareScoutedData(redTeamData, comparison))
+                    tbaValue = float(prepareTBAData(breakDownRed, comparison))
+                    if tbaValue != 0:
+                        precentError = abs((dataValue - tbaValue) / tbaValue) * 100
+                    else:
+                        precentError = 100
+                    if (precentError > comparison["tolerance"]) and (dataValue != tbaValue):
+                        errors.append((1, f"Red's {", ".join(comparison["data_values"])} total has a {precentError}% error compared to the value provided by TBA"))
                         errors.append((1, f"\tOur total {dataValue}"))
                         errors.append((1, f"\tTBA's total {tbaValue}"))
                 else:
@@ -201,10 +215,14 @@ def validateData(tbaJson, dataFrame):
                                 errors.append((1, f"\tTBA's {", ".join(comparison["data_values"])} {tbaValue}"))
             for comparison in COMPARISONS:
                 if ("data_mode" not in comparison or comparison["data_mode"] != "validate_by_robot"):
-                    dataValue = prepareScoutedData(blueTeamData, comparison)
-                    tbaValue = prepareTBAData(breakDownBlue, comparison)
-                    if (float(dataValue) != float(tbaValue)):
-                        errors.append((2, f"Blue's {", ".join(comparison["data_values"])} total does not match the value provided by TBA"))
+                    dataValue = float(prepareScoutedData(redTeamData, comparison))
+                    tbaValue = float(prepareTBAData(breakDownRed, comparison))
+                    if tbaValue != 0:
+                        precentError = abs((dataValue - tbaValue) / tbaValue) * 100
+                    else:
+                        precentError = 100
+                    if (precentError > comparison["tolerance"]) and (dataValue != tbaValue):
+                        errors.append((2, f"Blue's {", ".join(comparison["data_values"])} total has a {precentError}% error compared to the value provided by TBA"))
                         errors.append((2, f"\tOur total {dataValue}"))
                         errors.append((2, f"\tTBA's total {tbaValue}"))
                 else:
